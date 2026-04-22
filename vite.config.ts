@@ -13,6 +13,9 @@ export default defineConfig(({mode}) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
+        'node-fetch': path.resolve(__dirname, 'src/empty.ts'),
+        'whatwg-fetch': path.resolve(__dirname, 'src/empty.ts'),
+        'cross-fetch': path.resolve(__dirname, 'src/empty.ts')
       },
     },
     server: {

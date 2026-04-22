@@ -14,6 +14,7 @@ export default function App() {
           <h1 className="text-4xl sm:text-6xl font-serif italic font-light tracking-tighter leading-none mt-1">
             CivicGuide <span className="text-xl sm:text-2xl not-italic tracking-normal ml-1 sm:ml-2 font-sans font-bold">2026</span>
           </h1>
+          <span className="text-xs sm:text-sm font-bold tracking-widest mt-2 uppercase text-orange-600">Developed by Sumit Raj</span>
         </div>
         
         <div className="mt-4 sm:mt-0 text-left sm:text-right">

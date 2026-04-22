@@ -7,6 +7,18 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      try {
+        var originalFetch = window.fetch;
+        Object.defineProperty(window, 'fetch', {
+          configurable: true,
+          get: function() { return originalFetch; },
+          set: function(val) { console.debug("Ignored attempt to set window.fetch"); }
+        });
+      } catch (e) {
+        console.warn("Could not patch window.fetch:", e);
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

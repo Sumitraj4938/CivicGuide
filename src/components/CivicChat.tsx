@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, Loader2, Image as ImageIcon, X } from 'lucide-react';
+import { Send, User, Loader2, Image as ImageIcon, X } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -149,40 +149,40 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#F9F7F3] border border-black overflow-hidden relative">
-      <div className="border-b border-black p-4 shrink-0 flex items-center justify-between bg-[#F9F7F3]">
+    <div className="flex flex-col h-full bg-bg border border-border overflow-hidden relative transition-colors duration-200">
+      <div className="border-b border-border p-4 shrink-0 flex items-center justify-between bg-bg transition-colors duration-200">
         <div className="flex items-center gap-3">
-          <div className="bg-black text-white p-2 shrink-0">
-            <Bot className="w-5 h-5 flex-shrink-0" />
+          <div className="bg-text text-bg p-1 shrink-0 transition-colors duration-200 flex items-center justify-center">
+            <img src="/logo.png" className="w-7 h-7 object-contain flex-shrink-0" alt="CivicGuide Logo" />
           </div>
           <div className="min-w-0">
-            <h2 className="text-black font-serif italic text-lg truncate flex items-center gap-2">
+            <h2 className="text-text font-serif italic text-lg truncate flex items-center gap-2 transition-colors duration-200">
               CivicGuide Assistant
             </h2>
-            <p className="text-black/60 text-[10px] uppercase font-bold tracking-widest truncate">AI-powered non-partisan guidance</p>
+            <p className="text-text/60 text-[10px] uppercase font-bold tracking-widest truncate transition-colors duration-200">AI-powered non-partisan guidance</p>
           </div>
         </div>
       </div>
       
-      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-white/50 relative">
-        <div className="absolute top-0 bottom-0 left-8 border-l border-black/10 z-0 hidden sm:block"></div>
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-border/5 relative transition-colors duration-200">
+        <div className="absolute top-0 bottom-0 left-8 border-l border-border/10 z-0 hidden sm:block transition-colors duration-200"></div>
         {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-4 relative z-10 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-            <div className={`shrink-0 w-8 h-8 flex items-center justify-center border border-black ${msg.role === 'user' ? 'bg-orange-600 text-white border-orange-600' : 'bg-black text-white'}`}>
-              {msg.role === 'user' ? <User className="w-4 h-4 flex-shrink-0" /> : <Bot className="w-4 h-4 flex-shrink-0" />}
+            <div className={`shrink-0 w-8 h-8 flex items-center justify-center border border-border transition-colors duration-200 ${msg.role === 'user' ? 'bg-orange-600 text-white border-orange-600' : 'bg-text text-bg'}`}>
+              {msg.role === 'user' ? <User className="w-4 h-4 flex-shrink-0" /> : <img src="/logo.png" className="w-6 h-6 object-contain flex-shrink-0" alt="Logo" />}
             </div>
-            <div className={`max-w-[85%] sm:max-w-[75%] p-5 border border-black flex flex-col gap-3 ${
+            <div className={`max-w-[85%] sm:max-w-[75%] p-5 border border-border flex flex-col gap-3 transition-colors duration-200 ${
               msg.role === 'user' 
-                ? 'bg-orange-50/50' 
-                : 'bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                ? 'bg-orange-50' 
+                : 'bg-bg shadow-[4px_4px_0px_0px_var(--color-border)]'
             }`}>
               {msg.image && (
-                <div className="relative w-full max-w-[240px] aspect-auto border border-black/20">
+                <div className="relative w-full max-w-[240px] aspect-auto border border-border/20">
                   <img src={msg.image} alt="Uploaded document" className="w-full h-auto" />
                 </div>
               )}
               {msg.content && (
-                <div className="prose prose-sm prose-p:leading-relaxed prose-headings:font-serif prose-headings:font-normal max-w-none text-black">
+                <div className="prose prose-sm prose-p:leading-relaxed prose-headings:font-serif prose-headings:font-normal max-w-none text-text">
                   <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {msg.content}
                   </ReactMarkdown>
@@ -193,25 +193,25 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
         ))}
         {isLoading && (
           <div className="flex gap-4 relative z-10">
-            <div className="shrink-0 w-8 h-8 bg-black border border-black flex items-center justify-center">
-              <Bot className="w-4 h-4 text-white flex-shrink-0" />
+            <div className="shrink-0 w-8 h-8 bg-text border border-border flex items-center justify-center transition-colors duration-200">
+              <img src="/logo.png" className="w-6 h-6 object-contain flex-shrink-0" alt="Logo" />
             </div>
-            <div className="bg-white border border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] p-5 flex items-center gap-3">
+            <div className="bg-bg border border-border shadow-[4px_4px_0px_0px_var(--color-border)] p-5 flex items-center gap-3 transition-colors duration-200">
               <Loader2 className="w-4 h-4 text-orange-600 animate-spin flex-shrink-0" />
-              <span className="text-xs uppercase tracking-widest font-bold text-black/60">Retrieving data...</span>
+              <span className="text-xs uppercase tracking-widest font-bold text-text/60">Retrieving data...</span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 bg-[#F9F7F3] border-t border-black shrink-0 relative z-20 flex flex-col">
+      <div className="p-4 bg-bg border-t border-border shrink-0 relative z-20 flex flex-col transition-colors duration-200">
         {selectedImage && (
-          <div className="mb-3 relative w-16 h-16 border border-black group">
+          <div className="mb-3 relative w-16 h-16 border border-border group transition-colors duration-200">
             <img src={selectedImage} alt="Preview" className="w-full h-full object-cover" />
             <button 
               onClick={() => setSelectedImage(null)}
-              className="absolute -top-2 -right-2 bg-black text-white p-0.5 rounded-full hover:bg-orange-600 transition-colors"
+              className="absolute -top-2 -right-2 bg-text text-bg p-0.5 rounded-full hover:bg-orange-600 transition-colors duration-200"
             >
               <X className="w-3 h-3" />
             </button>
@@ -228,7 +228,7 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
           <button 
             type="button" 
             onClick={() => fileInputRef.current?.click()}
-            className="bg-white border border-black hover:bg-orange-50 text-black px-4 py-3 transition-colors flex items-center justify-center shrink-0"
+            className="bg-bg border border-border hover:bg-orange-50 text-text px-4 py-3 transition-colors duration-200 flex items-center justify-center shrink-0"
             disabled={isLoading}
             aria-label="Upload document image"
             title="Upload document image for analysis"
@@ -240,13 +240,13 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask a question or upload a document..."
-            className="flex-1 bg-white border border-black px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-black transition-all placeholder:text-black/30 font-serif italic"
+            className="flex-1 bg-bg border border-border px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-border transition-colors duration-200 placeholder:text-text/30 text-text font-serif italic"
             disabled={isLoading}
           />
           <button 
             type="submit" 
             disabled={(!input.trim() && !selectedImage) || isLoading}
-            className="bg-black hover:bg-orange-600 disabled:bg-black/20 disabled:cursor-not-allowed disabled:text-black/40 text-white px-6 py-3 transition-colors flex items-center justify-center shrink-0 uppercase tracking-widest text-xs font-bold"
+            className="bg-text hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-bg px-6 py-3 transition-colors duration-200 flex items-center justify-center shrink-0 uppercase tracking-widest text-xs font-bold"
           >
             <Send className="w-4 h-4 mr-2 flex-shrink-0 hidden sm:inline" />
             Send
