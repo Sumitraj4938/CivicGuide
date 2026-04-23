@@ -8,14 +8,11 @@ export default defineConfig(({mode}) => {
   return {
     plugins: [react(), tailwindcss()],
     define: {
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || ""),
     },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
-        'node-fetch': path.resolve(__dirname, 'src/empty.ts'),
-        'whatwg-fetch': path.resolve(__dirname, 'src/empty.ts'),
-        'cross-fetch': path.resolve(__dirname, 'src/empty.ts')
       },
     },
     server: {

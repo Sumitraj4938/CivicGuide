@@ -65,23 +65,10 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // We use a ref to hold the actual genai chat object to persist history
-  const chatSessionRef = useRef<any>(null);
-
   useEffect(() => {
     // Scroll to bottom when messages change
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  const initChat = () => {
-    if (!chatSessionRef.current) {
-      chatSessionRef.current = ai.getGenerativeModel({
-        model: 'gemini-1.5-flash', 
-        systemInstruction: SYSTEM_PROMPT,
-      }).startChat();
-    }
-    return chatSessionRef.current;
-  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -120,27 +107,33 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
     setIsLoading(true);
 
     try {
-      const chat = initChat();
+      const history = messages.map(msg => ({
+        role: msg.role,
+        parts: [{ text: msg.content }]
+      }));
       
-      const contents: any[] = [];
-      
+      const parts: any[] = [];
       if (userMessage.image) {
-        // Extract base64 data correctly for the API
         const base64Data = userMessage.image.split(',')[1];
         const mimeType = userMessage.image.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)?.[1] || 'image/jpeg';
-        
-        contents.push({
+        parts.push({
           inlineData: {
             data: base64Data,
             mimeType
           }
         });
       }
-      contents.push(userMessage.content);
+      parts.push({ text: userMessage.content });
 
-      const result = await chat.sendMessage(contents);
-      const response = await result.response;
-      const text = response.text();
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: [...history, { role: 'user', parts }],
+        config: {
+          systemInstruction: SYSTEM_PROMPT,
+        }
+      });
+
+      const text = response.text;
 
       const modelMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -149,7 +142,6 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
       };
       setMessages((prev) => [...prev, modelMessage]);
       
-      // Attempt to intelligently trigger the stepper if we see certain keywords
       if (onCheckpointSelect) {
         const textLower = userMessage.content.toLowerCase();
         if (textLower.includes('register') || textLower.includes('eligibility')) onCheckpointSelect(1);
@@ -157,12 +149,13 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
         else if (textLower.includes('research') || textLower.includes('ballot') || textLower.includes('candidate')) onCheckpointSelect(3);
         else if (textLower.includes('vote') || textLower.includes('early') || textLower.includes('polling')) onCheckpointSelect(4);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Generative AI Error:", error);
+      const errorMessage = error?.message || "Check your API key and connection";
       setMessages((prev) => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'model',
-        content: "Oops, it seems I encountered an error connecting to the civic database. Please try asking again."
+        content: `Oops, it seems I encountered an error: ${errorMessage}. Please ensure your GEMINI_API_KEY is correct.`
       }]);
     } finally {
       setIsLoading(false);
