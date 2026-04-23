@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { Send, User, Loader2, Image as ImageIcon, X } from 'lucide-react';
+import { Send, User, Loader2, Image as ImageIcon, X, Info, Trash2 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -52,23 +52,40 @@ const Logo = ({ className }: { className?: string }) => (
 );
 
 export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?: (checkpoint: number) => void }) {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: 'greeting',
-      role: 'model',
-      content: "Hello! I'm **CivicGuide**, your non-partisan digital assistant. \n\nI can help you navigate the entire voting journey in any Indian language. I can also analyze photos of election-related documents.\n\nWhich phase of the process would you like to explore first?"
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('civic-chat-messages');
+      if (saved) return JSON.parse(saved);
     }
-  ]);
+    return [
+      {
+        id: 'greeting',
+        role: 'model',
+        content: "Hello! I'm **CivicGuide**, your non-partisan digital assistant. \n\nI can help you navigate the entire voting journey in any Indian language. I can also analyze photos of election-related documents.\n\nWhich phase of the process would you like to explore first?"
+      }
+    ];
+  });
   const [input, setInput] = useState('');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => {
     // Scroll to bottom when messages change
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Save messages to local database (localStorage)
+    localStorage.setItem('civic-chat-messages', JSON.stringify(messages));
   }, [messages]);
+
+  const clearHistory = () => {
+    if (confirm("Are you sure you want to clear your local chat history?")) {
+      const greeting = [messages[0]];
+      setMessages(greeting);
+      localStorage.removeItem('civic-chat-messages');
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -176,7 +193,51 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
             <p className="text-text/60 text-[10px] uppercase font-bold tracking-widest truncate transition-colors duration-200">AI-powered non-partisan guidance</p>
           </div>
         </div>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={clearHistory}
+            className="p-2 text-text/40 hover:text-orange-600 transition-colors duration-200"
+            title="Clear Chat History"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+          <button 
+            onClick={() => setIsAboutOpen(true)}
+            className="p-2 text-text/40 hover:text-text transition-colors duration-200"
+            title="About Privacy"
+          >
+            <Info className="w-4 h-4" />
+          </button>
+        </div>
       </div>
+      
+      {isAboutOpen && (
+        <div className="absolute inset-0 z-50 bg-bg/95 p-8 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-200">
+          <div className="max-w-md space-y-6">
+            <div className="bg-orange-600 text-bg p-4 w-fit mx-auto">
+              <Info className="w-8 h-8" />
+            </div>
+            <h3 className="text-2xl font-serif italic">Your Data is Secured</h3>
+            <div className="space-y-4 text-sm leading-relaxed opacity-80 text-left bg-border/5 p-6 border border-border">
+              <p>
+                <strong>Fully Secured & Local:</strong> Your chat history and preferences are saved exclusively in your browser's local database (Local Storage).
+              </p>
+              <p>
+                <strong>No Server Tracking:</strong> We do not store your personal conversations or uploaded images on our servers. All processed data remains within your local session.
+              </p>
+              <p>
+                <strong>Immediate Control:</strong> You can clear all saved data at any time by clicking the trash icon in the assistant header.
+              </p>
+            </div>
+            <button 
+              onClick={() => setIsAboutOpen(false)}
+              className="bg-text text-bg px-8 py-3 uppercase tracking-widest text-xs font-bold hover:bg-orange-600 transition-colors duration-200"
+            >
+              Close Info
+            </button>
+          </div>
+        </div>
+      )}
       
       <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-border/5 relative transition-colors duration-200">
         <div className="absolute top-0 bottom-0 left-8 border-l border-border/10 z-0 hidden sm:block transition-colors duration-200"></div>

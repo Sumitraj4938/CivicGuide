@@ -4,7 +4,13 @@ import VotingJourney from './components/VotingJourney';
 import { Sun, Moon } from 'lucide-react';
 
 export default function App() {
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep, setActiveStep] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('civic-active-step');
+      if (saved) return parseInt(saved, 10);
+    }
+    return 1;
+  });
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('civic-theme');
@@ -18,6 +24,10 @@ export default function App() {
     document.documentElement.classList.toggle('dark', theme === 'dark');
     localStorage.setItem('civic-theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    localStorage.setItem('civic-active-step', activeStep.toString());
+  }, [activeStep]);
 
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
