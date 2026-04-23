@@ -1,4 +1,5 @@
 import { CheckCircle2, Circle, AlertCircle, FileText, Search, Vote } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 
 const CHECKPOINTS = [
   {
@@ -59,51 +60,62 @@ interface VotingJourneyProps {
 export default function VotingJourney({ activeStep, setActiveStep }: VotingJourneyProps) {
   return (
     <div className="flex flex-col justify-between h-full space-y-8 pr-2">
-      <div className="space-y-8">
+      <div className="space-y-6">
         {CHECKPOINTS.map((checkpoint) => {
           const isActive = activeStep === checkpoint.id;
           const isPast = activeStep > checkpoint.id;
 
           return (
-            <div 
+            <motion.div 
+              layout
               key={checkpoint.id} 
-              className={`group cursor-pointer transition-opacity ${isActive ? 'opacity-100' : 'opacity-30 hover:opacity-100'}`}
+              className={`group cursor-pointer transition-all duration-300 ${isActive ? 'opacity-100' : 'opacity-40 hover:opacity-100'}`}
               onClick={() => setActiveStep(checkpoint.id)}
             >
-              <div className="flex items-center gap-2 mb-1">
-                <span className={`block text-[10px] font-bold tracking-widest uppercase ${isActive ? 'text-orange-600' : ''}`}>
-                  Checkpoint {String(checkpoint.id).padStart(2, '0')}
+              <div className="flex items-center gap-3 mb-1">
+                <span className={`block text-[10px] font-bold tracking-[0.2em] uppercase ${isActive ? 'text-orange-600' : ''}`}>
+                  0{checkpoint.id}
                 </span>
-                {isPast && <CheckCircle2 className="w-3 h-3 text-border opacity-50" />}
+                {isPast && <CheckCircle2 className="w-3.5 h-3.5 text-orange-600" />}
+                <div className={`flex-1 h-[1px] bg-border transition-all duration-500 ${isActive ? 'opacity-100' : 'opacity-20'}`}></div>
               </div>
-              <h3 className={`text-2xl font-serif italic pb-1 ${isActive ? 'border-b-2 border-orange-600' : ''}`}>
+              <h3 className={`text-2xl sm:text-3xl font-serif italic pb-1 transition-all duration-300 ${isActive ? 'text-text scale-[1.02] origin-left' : 'text-text/70'}`}>
                 {checkpoint.title}
               </h3>
               
-              {isActive && (
-                <div className="mt-3 text-sm leading-snug">
-                  <p className="opacity-80 mb-4 font-sans">{checkpoint.description}</p>
-                  
-                  <div className="bg-orange-50/50 border border-orange-200 p-5 mt-4 transition-colors duration-200">
-                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-orange-800 mb-2">Key Timeline</h4>
-                    <span className="font-serif text-xl font-bold text-orange-900">{checkpoint.date}</span>
-                    <ul className="space-y-3 mt-4">
-                      {checkpoint.details.map((detail, i) => {
-                        const parts = detail.split(/\*\*(.*?)\*\*/g);
-                        return (
-                          <li key={i} className="flex items-start gap-2 text-orange-950 font-sans transition-colors duration-200">
-                            <span className="text-orange-600 mt-0.5 shrink-0 opacity-70">→</span>
-                            <span className="leading-relaxed text-xs">
-                              {parts.map((part, index) => index % 2 === 1 ? <strong key={index} className="font-bold">{part}</strong> : part)}
-                            </span>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  </div>
-                </div>
-              )}
-            </div>
+              <AnimatePresence>
+                {isActive && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="mt-4 text-sm leading-relaxed border-l-2 border-orange-600 pl-6 py-2">
+                      <p className="text-text/70 mb-5 font-sans italic">{checkpoint.description}</p>
+                      
+                      <div className="bg-border/5 border border-border p-5 shadow-[4px_4px_0px_0px_var(--color-border)]">
+                        <h4 className="text-[10px] font-bold uppercase tracking-widest text-orange-600 mb-2">Key Timeline</h4>
+                        <span className="font-serif text-2xl italic text-text">{checkpoint.date}</span>
+                        <ul className="space-y-4 mt-6">
+                          {checkpoint.details.map((detail, i) => {
+                            const parts = detail.split(/\*\*(.*?)\*\*/g);
+                            return (
+                              <li key={i} className="flex items-start gap-3 text-text transition-colors duration-200">
+                                <span className="text-orange-600 mt-1 shrink-0 opacity-80 text-lg">›</span>
+                                <span className="leading-relaxed text-xs opacity-90">
+                                  {parts.map((part, index) => index % 2 === 1 ? <strong key={index} className="font-bold underline decoration-orange-600/30">{part}</strong> : part)}
+                                </span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           );
         })}
       </div>

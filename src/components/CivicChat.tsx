@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Send, User, Loader2, Image as ImageIcon, X, Info, Trash2 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
@@ -211,61 +212,78 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
         </div>
       </div>
       
-      {isAboutOpen && (
-        <div className="absolute inset-0 z-50 bg-bg/95 p-8 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-200">
-          <div className="max-w-md space-y-6">
-            <div className="bg-orange-600 text-bg p-4 w-fit mx-auto">
-              <Info className="w-8 h-8" />
+      <AnimatePresence>
+        {isAboutOpen && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="absolute inset-0 z-50 bg-bg/95 p-8 flex flex-col items-center justify-center text-center backdrop-blur-sm"
+          >
+            <div className="max-w-md space-y-6">
+              <div className="bg-orange-600 text-bg p-4 w-fit mx-auto border border-border shadow-[4px_4px_0px_0px_var(--color-border)]">
+                <Info className="w-8 h-8" />
+              </div>
+              <h3 className="text-3xl font-serif italic tracking-tight">Your Data is Secured</h3>
+              <div className="space-y-4 text-sm leading-relaxed opacity-80 text-left bg-border/5 p-6 border border-border">
+                <p>
+                  <strong>100% Client-Side Persistence:</strong> Your entire chat history, uploaded images, and voting progress are stored locally in your browser's private database.
+                </p>
+                <p>
+                  <strong>Zero Server Footprint:</strong> CivicGuide does not log or store your personal data on any server. Conversations are processed by the AI in real-time and saved only on your device.
+                </p>
+                <p>
+                  <strong>Privacy at Your Fingertips:</strong> You can purge your entire session using the trash icon in the header at any time.
+                </p>
+              </div>
+              <motion.button 
+                whileHover={{ y: -2 }}
+                whileTap={{ y: 0 }}
+                onClick={() => setIsAboutOpen(false)}
+                className="bg-text text-bg w-full py-4 uppercase tracking-widest text-xs font-bold hover:bg-orange-600 transition-colors duration-200 border border-border shadow-[4px_4px_0px_0px_var(--color-border)] cursor-pointer"
+              >
+                Close Security Panel
+              </motion.button>
             </div>
-            <h3 className="text-2xl font-serif italic">Your Data is Secured</h3>
-            <div className="space-y-4 text-sm leading-relaxed opacity-80 text-left bg-border/5 p-6 border border-border">
-              <p>
-                <strong>Fully Secured & Local:</strong> Your chat history and preferences are saved exclusively in your browser's local database (Local Storage).
-              </p>
-              <p>
-                <strong>No Server Tracking:</strong> We do not store your personal conversations or uploaded images on our servers. All processed data remains within your local session.
-              </p>
-              <p>
-                <strong>Immediate Control:</strong> You can clear all saved data at any time by clicking the trash icon in the assistant header.
-              </p>
-            </div>
-            <button 
-              onClick={() => setIsAboutOpen(false)}
-              className="bg-text text-bg px-8 py-3 uppercase tracking-widest text-xs font-bold hover:bg-orange-600 transition-colors duration-200"
-            >
-              Close Info
-            </button>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
       
       <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-border/5 relative transition-colors duration-200">
         <div className="absolute top-0 bottom-0 left-8 border-l border-border/10 z-0 hidden sm:block transition-colors duration-200"></div>
-        {messages.map((msg) => (
-          <div key={msg.id} className={`flex gap-4 relative z-10 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
-            <div className={`shrink-0 w-8 h-8 flex items-center justify-center border border-border transition-colors duration-200 ${msg.role === 'user' ? 'bg-orange-600 text-white border-orange-600' : 'bg-text text-bg'}`}>
-              {msg.role === 'user' ? <User className="w-4 h-4 flex-shrink-0" /> : <Logo className="w-6 h-6 flex-shrink-0" />}
-            </div>
-            <div className={`max-w-[85%] sm:max-w-[75%] p-5 border border-border flex flex-col gap-3 transition-colors duration-200 ${
-              msg.role === 'user' 
-                ? 'bg-orange-50' 
-                : 'bg-bg shadow-[4px_4px_0px_0px_var(--color-border)]'
-            }`}>
-              {msg.image && (
-                <div className="relative w-full max-w-[240px] aspect-auto border border-border/20">
-                  <img src={msg.image} alt="Uploaded document" className="w-full h-auto" />
-                </div>
-              )}
-              {msg.content && (
-                <div className="prose prose-sm prose-p:leading-relaxed prose-headings:font-serif prose-headings:font-normal max-w-none text-text">
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                    {msg.content}
-                  </ReactMarkdown>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+        <AnimatePresence initial={false}>
+          {messages.map((msg) => (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              key={msg.id} 
+              className={`flex gap-4 relative z-10 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}
+            >
+              <div className={`shrink-0 w-9 h-9 flex items-center justify-center border border-border transition-colors duration-200 ${msg.role === 'user' ? 'bg-orange-600 text-white border-orange-600' : 'bg-text text-bg'}`}>
+                {msg.role === 'user' ? <User className="w-5 h-5 flex-shrink-0" /> : <Logo className="w-7 h-7 flex-shrink-0" />}
+              </div>
+              <div className={`max-w-[85%] sm:max-w-[75%] p-5 border border-border flex flex-col gap-3 transition-colors duration-200 group ${
+                msg.role === 'user' 
+                  ? 'bg-orange-600/5' 
+                  : 'bg-bg shadow-[6px_6px_0px_0px_var(--color-border)]'
+              }`}>
+                {msg.image && (
+                  <div className="relative w-full max-w-[320px] aspect-auto border border-border/20 overflow-hidden">
+                    <img src={msg.image} alt="Uploaded document" className="w-full h-auto grayscale-[0.5] hover:grayscale-0 transition-all duration-300" />
+                  </div>
+                )}
+                {msg.content && (
+                  <div className="prose prose-sm prose-p:leading-relaxed prose-headings:font-serif prose-headings:font-normal max-w-none text-text">
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          ))}
+        </AnimatePresence>
         {isLoading && (
           <div className="flex gap-4 relative z-10">
             <div className="shrink-0 w-8 h-8 bg-text border border-border flex items-center justify-center transition-colors duration-200">
