@@ -1,12 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CivicChat from './components/CivicChat';
 import VotingJourney from './components/VotingJourney';
+import { Sun, Moon } from 'lucide-react';
 
 export default function App() {
   const [activeStep, setActiveStep] = useState(1);
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('civic-theme');
+      if (saved) return saved as 'light' | 'dark';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('civic-theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
   return (
-    <div className="min-h-screen bg-bg text-text font-sans p-4 md:p-8 flex flex-col relative border-[12px] dark:border-black border-white transition-colors duration-200">
+    <div className="min-h-screen bg-bg text-text font-sans p-4 md:p-8 flex flex-col relative border-[12px] border-border transition-colors duration-200">
+      {/* Theme Toggle */}
+      <button 
+        onClick={toggleTheme}
+        className="fixed top-6 right-6 z-50 p-3 bg-text text-bg border border-border shadow-[4px_4px_0px_0px_var(--color-border)] hover:-translate-y-0.5 active:translate-y-0 transition-all rounded-none"
+        aria-label="Toggle theme"
+      >
+        {theme === 'light' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+      </button>
+
       {/* Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-border pb-4 mb-8 transition-colors duration-200">
         <div className="flex flex-col">
@@ -14,7 +39,7 @@ export default function App() {
           <h1 className="text-4xl sm:text-6xl font-serif italic font-light tracking-tighter leading-none mt-1">
             CivicGuide <span className="text-xl sm:text-2xl not-italic tracking-normal ml-1 sm:ml-2 font-sans font-bold">2026</span>
           </h1>
-          <span className="text-xs sm:text-sm font-bold tracking-widest mt-2 uppercase text-orange-600">Developed by Sumit Raj</span>
+          <span className="text-xs sm:text-sm font-bold tracking-widest mt-2 uppercase text-orange-600 dark:text-orange-400">Developed by Sumit Raj</span>
         </div>
         
         <div className="mt-4 sm:mt-0 text-left sm:text-right">

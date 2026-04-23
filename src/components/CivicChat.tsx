@@ -41,6 +41,16 @@ type Message = {
   image?: string;
 };
 
+const Logo = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" className={className} fill="currentColor">
+    <path d="M50 5 L10 25 L10 50 C10 70 30 90 50 95 C70 90 90 70 90 50 L90 25 L50 5 Z" fill="none" stroke="currentColor" strokeWidth="4" />
+    <path d="M50 25 L65 45 L50 65 L35 45 Z" fill="orange" />
+    <circle cx="50" cy="45" r="5" fill="white" />
+    <rect x="40" y="70" width="20" height="15" fill="none" stroke="currentColor" strokeWidth="2" />
+    <path d="M45 77 L48 80 L55 73" fill="none" stroke="orange" strokeWidth="3" />
+  </svg>
+);
+
 export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?: (checkpoint: number) => void }) {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -65,12 +75,10 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
 
   const initChat = () => {
     if (!chatSessionRef.current) {
-      chatSessionRef.current = ai.chats.create({
-        model: 'gemini-3.1-pro-preview', // Use pro model for complex instructions and multilingual support
-        config: {
-          systemInstruction: SYSTEM_PROMPT,
-        }
-      });
+      chatSessionRef.current = ai.getGenerativeModel({
+        model: 'gemini-1.5-flash', 
+        systemInstruction: SYSTEM_PROMPT,
+      }).startChat();
     }
     return chatSessionRef.current;
   };
@@ -90,6 +98,15 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
     e?.preventDefault();
     if ((!input.trim() && !selectedImage) || isLoading) return;
 
+    if (!process.env.GEMINI_API_KEY) {
+      setMessages((prev) => [...prev, {
+        id: Date.now().toString(),
+        role: 'model',
+        content: "Please provide a valid GEMINI_API_KEY in the environment secrets."
+      }]);
+      return;
+    }
+
     const userMessage: Message = { 
       id: Date.now().toString(), 
       role: 'user', 
@@ -105,26 +122,30 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
     try {
       const chat = initChat();
       
-      let contents: any = userMessage.content;
+      const contents: any[] = [];
       
       if (userMessage.image) {
         // Extract base64 data correctly for the API
         const base64Data = userMessage.image.split(',')[1];
         const mimeType = userMessage.image.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/)?.[1] || 'image/jpeg';
         
-        contents = [
-           { inlineData: { data: base64Data, mimeType } },
-           userMessage.content
-        ];
+        contents.push({
+          inlineData: {
+            data: base64Data,
+            mimeType
+          }
+        });
       }
+      contents.push(userMessage.content);
 
-      const response = await chat.sendMessage({ message: contents });
+      const result = await chat.sendMessage(contents);
+      const response = await result.response;
+      const text = response.text();
 
-      
       const modelMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'model',
-        content: response.text || "I'm having trouble retrieving that information right now. Please check vote.org in the meantime!"
+        content: text || "I'm having trouble retrieving that information right now. Please check vote.org in the meantime!"
       };
       setMessages((prev) => [...prev, modelMessage]);
       
@@ -153,7 +174,7 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
       <div className="border-b border-border p-4 shrink-0 flex items-center justify-between bg-bg transition-colors duration-200">
         <div className="flex items-center gap-3">
           <div className="bg-text text-bg p-1 shrink-0 transition-colors duration-200 flex items-center justify-center">
-            <img src="/logo.png" className="w-7 h-7 object-contain flex-shrink-0" alt="CivicGuide Logo" />
+            <Logo className="w-7 h-7 flex-shrink-0" />
           </div>
           <div className="min-w-0">
             <h2 className="text-text font-serif italic text-lg truncate flex items-center gap-2 transition-colors duration-200">
@@ -169,7 +190,7 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
         {messages.map((msg) => (
           <div key={msg.id} className={`flex gap-4 relative z-10 ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
             <div className={`shrink-0 w-8 h-8 flex items-center justify-center border border-border transition-colors duration-200 ${msg.role === 'user' ? 'bg-orange-600 text-white border-orange-600' : 'bg-text text-bg'}`}>
-              {msg.role === 'user' ? <User className="w-4 h-4 flex-shrink-0" /> : <img src="/logo.png" className="w-6 h-6 object-contain flex-shrink-0" alt="Logo" />}
+              {msg.role === 'user' ? <User className="w-4 h-4 flex-shrink-0" /> : <Logo className="w-6 h-6 flex-shrink-0" />}
             </div>
             <div className={`max-w-[85%] sm:max-w-[75%] p-5 border border-border flex flex-col gap-3 transition-colors duration-200 ${
               msg.role === 'user' 
@@ -194,7 +215,7 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
         {isLoading && (
           <div className="flex gap-4 relative z-10">
             <div className="shrink-0 w-8 h-8 bg-text border border-border flex items-center justify-center transition-colors duration-200">
-              <img src="/logo.png" className="w-6 h-6 object-contain flex-shrink-0" alt="Logo" />
+              <Logo className="w-6 h-6 flex-shrink-0" />
             </div>
             <div className="bg-bg border border-border shadow-[4px_4px_0px_0px_var(--color-border)] p-5 flex items-center gap-3 transition-colors duration-200">
               <Loader2 className="w-4 h-4 text-orange-600 animate-spin flex-shrink-0" />
