@@ -82,20 +82,20 @@ export default function App() {
       <nav className="flex gap-4 mb-8 w-full max-w-7xl mx-auto border-b border-border">
         <button 
           onClick={() => setActiveTab('journey')}
-          className={`pb-4 px-2 text-sm font-bold uppercase tracking-widest transition-all relative ${activeTab === 'journey' ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+          className={`pb-4 px-4 text-xs sm:text-sm font-bold uppercase tracking-widest transition-all relative ${activeTab === 'journey' ? 'text-orange-600' : 'opacity-40 hover:opacity-70'}`}
         >
           Voting Journey
           {activeTab === 'journey' && (
-            <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-text" />
+            <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-orange-600" />
           )}
         </button>
         <button 
           onClick={() => setActiveTab('news')}
-          className={`pb-4 px-2 text-sm font-bold uppercase tracking-widest transition-all relative ${activeTab === 'news' ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+          className={`pb-4 px-4 text-xs sm:text-sm font-bold uppercase tracking-widest transition-all relative ${activeTab === 'news' ? 'text-orange-600' : 'opacity-40 hover:opacity-70'}`}
         >
           Election News
           {activeTab === 'news' && (
-            <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-text" />
+            <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-orange-600" />
           )}
         </button>
       </nav>

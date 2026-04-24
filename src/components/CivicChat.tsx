@@ -62,7 +62,7 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
       {
         id: 'greeting',
         role: 'model',
-        content: "Hello! I'm **CivicGuide**, your non-partisan digital assistant. \n\nI can help you navigate the entire voting journey in any Indian language. I can also analyze photos of election-related documents.\n\nWhich phase of the process would you like to explore first?"
+        content: "Hello! I'm **CivicGuide**, a non-partisan digital assistant developed by **Sumit Raj**. \n\nI can help you navigate the entire voting journey in any Indian language. I can also analyze photos of election-related documents.\n\nWhich phase of the process would you like to explore first?"
       }
     ];
   });
@@ -313,17 +313,17 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
 
       <div className="p-4 bg-bg border-t border-border shrink-0 relative z-20 flex flex-col transition-colors duration-200">
         {selectedImage && (
-          <div className="mb-3 relative w-16 h-16 border border-border group transition-colors duration-200">
+          <div className="mb-3 relative w-20 h-20 border-2 border-orange-600 group transition-colors duration-200 shadow-[4px_4px_0px_0px_rgba(234,88,12,0.2)]">
             <img src={selectedImage} alt="Preview" className="w-full h-full object-cover" />
             <button 
               onClick={() => setSelectedImage(null)}
-              className="absolute -top-2 -right-2 bg-text text-bg p-0.5 rounded-full hover:bg-orange-600 transition-colors duration-200"
+              className="absolute -top-2 -right-2 bg-text text-bg p-1 rounded-full hover:bg-orange-600 transition-colors duration-200 border border-border"
             >
               <X className="w-3 h-3" />
             </button>
           </div>
         )}
-        <form onSubmit={handleSend} className="flex gap-3">
+        <form onSubmit={handleSend} className="flex gap-2 items-stretch">
           <input 
             type="file" 
             accept="image/*" 
@@ -331,33 +331,38 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
             className="hidden" 
             onChange={handleImageUpload} 
           />
-          <button 
-            type="button" 
-            onClick={() => fileInputRef.current?.click()}
-            className="bg-bg border border-border hover:bg-orange-50 text-text px-4 py-3 transition-colors duration-200 flex items-center justify-center shrink-0"
-            disabled={isLoading}
-            aria-label="Upload document image"
-            title="Upload document image for analysis"
-          >
-            <ImageIcon className="w-5 h-5 flex-shrink-0" />
-          </button>
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask a question or upload a document..."
-            className="flex-1 bg-bg border border-border px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-border transition-colors duration-200 placeholder:text-text/30 text-text font-serif italic"
-            disabled={isLoading}
-          />
+          <div className="flex-1 flex gap-0 bg-bg/50 backdrop-blur-sm border border-border focus-within:ring-2 focus-within:ring-orange-600/50 transition-all duration-300">
+            <button 
+              type="button" 
+              onClick={() => fileInputRef.current?.click()}
+              className="bg-transparent border-r border-border hover:bg-orange-600 hover:text-bg text-text/60 px-4 transition-all duration-300 flex items-center justify-center shrink-0"
+              disabled={isLoading}
+              aria-label="Upload document image"
+              title="Upload document image for analysis"
+            >
+              <ImageIcon className="w-5 h-5 flex-shrink-0" />
+            </button>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Type your civic question..."
+              className="flex-1 bg-transparent px-4 py-3 text-sm focus:outline-none transition-colors duration-200 placeholder:text-text/30 text-text font-serif italic min-w-0"
+              disabled={isLoading}
+            />
+          </div>
           <button 
             type="submit" 
             disabled={(!input.trim() && !selectedImage) || isLoading}
-            className="bg-text hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed text-bg px-6 py-3 transition-colors duration-200 flex items-center justify-center shrink-0 uppercase tracking-widest text-xs font-bold"
+            className="bg-text hover:bg-orange-600 disabled:opacity-30 disabled:cursor-not-allowed text-bg px-8 transition-all duration-300 flex items-center justify-center shrink-0 uppercase tracking-widest text-xs font-black border border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-y-0.5 active:shadow-none"
           >
-            <Send className="w-4 h-4 mr-2 flex-shrink-0 hidden sm:inline" />
-            Send
+            <Send className="w-4 h-4 mr-2 flex-shrink-0 hidden md:inline" />
+            <span>Post</span>
           </button>
         </form>
+        <p className="text-[9px] uppercase tracking-tighter opacity-40 mt-2 text-center">
+          Powered by Gemini 3 Flash • Verified by Google Search Grounding
+        </p>
       </div>
     </div>
   );

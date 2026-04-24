@@ -1,17 +1,45 @@
 @import "tailwindcss";
 
 @theme {
-  --color-bg: light-dark(#F9F7F3, #1A1A1E);
-  --color-text: light-dark(#1A1A1A, #E4E4E7);
-  --color-border: light-dark(black, #3F3F46);
-  --color-orange-50: light-dark(#fff7ed, #431407);
-  --color-orange-200: light-dark(#fed7aa, #9a3412);
-  --color-orange-600: light-dark(#ea580c, #f97316);
-  --color-orange-800: light-dark(#9a3412, #fdba74);
-  --color-orange-900: light-dark(#7c2d12, #fed7aa);
-  --color-orange-950: light-dark(#431407, #ffedd5);
+  --color-bg: #F9F7F3;
+  --color-text: #1A1A1A;
+  --color-border: #000000;
+  --color-orange-50: #fff7ed;
+  --color-orange-200: #fed7aa;
+  --color-orange-600: #ea580c;
+  --color-orange-800: #9a3412;
+  --color-orange-900: #7c2d12;
+  --color-orange-950: #431407;
+}
+
+@layer base {
+  .dark {
+    --color-bg: #121214;
+    --color-text: #F9FAFB;
+    --color-border: #3F3F46;
+    --color-orange-50: #301008;
+    --color-orange-200: #7c2d12;
+    --color-orange-600: #f97316;
+    --color-orange-800: #fdba74;
+    --color-orange-900: #fed7aa;
+    --color-orange-950: #ffedd5;
+  }
 }
 
 :root {
   color-scheme: light dark;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
