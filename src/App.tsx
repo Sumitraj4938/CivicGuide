@@ -4,6 +4,7 @@ import CivicChat from './components/CivicChat';
 import VotingJourney from './components/VotingJourney';
 import ElectionNews from './components/ElectionNews';
 import { Sun, Moon } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'journey' | 'news'>(() => {
@@ -47,6 +48,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-bg text-text font-sans p-4 md:p-8 flex flex-col relative border-[12px] border-border transition-colors duration-300">
+      <Analytics />
       {/* Theme Toggle */}
       <motion.button 
         whileHover={{ scale: 1.05 }}
