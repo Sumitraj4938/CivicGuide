@@ -47,7 +47,7 @@ const CHECKPOINTS = [
     details: [
       "**Early Voting:** Avoid the lines and vote on your schedule.",
       "**Mail-in Voting:** Request your absentee ballot early.",
-      "**Election Day (Nov 3):** Find your polling location and know the hours."
+      "**Election Day (Nov 3):** Find your polling location and know the hours. [Find on Google Maps](https://www.google.com/maps/search/polling+places+near+me)"
     ],
   }
 ];

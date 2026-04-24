@@ -101,7 +101,19 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
 
   const handleSend = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if ((!input.trim() && !selectedImage) || isLoading) return;
+    const trimmedInput = input.trim();
+    
+    // Safety check: Input length validation
+    if (trimmedInput.length > 2000) {
+      setMessages((prev) => [...prev, {
+        id: Date.now().toString(),
+        role: 'model',
+        content: "Your message is too long. Please keep it under 2000 characters."
+      }]);
+      return;
+    }
+
+    if ((!trimmedInput && !selectedImage) || isLoading) return;
 
     if (!process.env.GEMINI_API_KEY) {
       setMessages((prev) => [...prev, {
@@ -148,6 +160,7 @@ export default function CivicChat({ onCheckpointSelect }: { onCheckpointSelect?:
         contents: [...history, { role: 'user', parts }],
         config: {
           systemInstruction: SYSTEM_PROMPT,
+          tools: [{ googleSearch: {} }] // Enhanced with real-time election data
         }
       });
 

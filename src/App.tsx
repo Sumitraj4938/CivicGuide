@@ -2,9 +2,17 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import CivicChat from './components/CivicChat';
 import VotingJourney from './components/VotingJourney';
+import ElectionNews from './components/ElectionNews';
 import { Sun, Moon } from 'lucide-react';
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState<'journey' | 'news'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('civic-active-tab');
+      if (saved) return saved as 'journey' | 'news';
+    }
+    return 'journey';
+  });
   const [activeStep, setActiveStep] = useState<number>(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('civic-active-step');
@@ -31,6 +39,10 @@ export default function App() {
     localStorage.setItem('civic-active-step', activeStep.toString());
   }, [activeStep]);
 
+  useEffect(() => {
+    localStorage.setItem('civic-active-tab', activeTab);
+  }, [activeTab]);
+
   const toggleTheme = () => setTheme(prev => prev === 'light' ? 'dark' : 'light');
 
   return (
@@ -49,11 +61,15 @@ export default function App() {
       {/* Header */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end border-b border-border pb-4 mb-8 transition-colors duration-200 w-full max-w-7xl mx-auto">
         <div className="flex flex-col">
-          <span className="text-xs font-bold tracking-[0.2em] uppercase opacity-60 mb-1">Civic Intelligence Unit</span>
+          <span className="text-xs font-bold tracking-[0.2em] uppercase opacity-60 mb-1">Sumit Raj Production</span>
           <h1 className="text-4xl sm:text-6xl font-serif italic font-light tracking-tighter leading-none mt-1">
             CivicGuide <span className="text-xl sm:text-2xl not-italic tracking-normal ml-1 sm:ml-2 font-sans font-bold">2026</span>
           </h1>
-          <span className="text-xs sm:text-sm font-bold tracking-widest mt-2 uppercase text-orange-600 whitespace-nowrap">Developed by Sumit Raj</span>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-xs sm:text-sm font-bold tracking-widest uppercase text-orange-600 bg-orange-600/10 px-2 py-0.5">Author: Sumit Raj</span>
+            <span className="w-1 h-1 bg-border rounded-full"></span>
+            <span className="text-[10px] sm:text-xs uppercase font-bold tracking-widest opacity-60">Non-Partisan Digital Assistant</span>
+          </div>
         </div>
         
         <div className="mt-6 sm:mt-0 text-left sm:text-right">
@@ -62,21 +78,66 @@ export default function App() {
         </div>
       </header>
 
+      {/* Navigation Tabs */}
+      <nav className="flex gap-4 mb-8 w-full max-w-7xl mx-auto border-b border-border">
+        <button 
+          onClick={() => setActiveTab('journey')}
+          className={`pb-4 px-2 text-sm font-bold uppercase tracking-widest transition-all relative ${activeTab === 'journey' ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+        >
+          Voting Journey
+          {activeTab === 'journey' && (
+            <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-text" />
+          )}
+        </button>
+        <button 
+          onClick={() => setActiveTab('news')}
+          className={`pb-4 px-2 text-sm font-bold uppercase tracking-widest transition-all relative ${activeTab === 'news' ? 'opacity-100' : 'opacity-40 hover:opacity-70'}`}
+        >
+          Election News
+          {activeTab === 'news' && (
+            <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-1 bg-text" />
+          )}
+        </button>
+      </nav>
+
       {/* Main Content */}
       <main className="flex-1 w-full max-w-7xl mx-auto flex flex-col pt-2 overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 flex-1 h-full min-h-0">
-          
-          {/* Left Column: Interactive Voting Journey */}
-          <div className="lg:col-span-4 h-full overflow-y-auto lg:border-r border-border transition-colors duration-200 pb-8 lg:pb-0 scrollbar-hide">
-            <VotingJourney activeStep={activeStep} setActiveStep={setActiveStep} />
-          </div>
-
-          {/* Right Column: AI Assistant Chat */}
-          <div className="lg:col-span-8 flex flex-col min-h-[500px] h-full lg:h-[calc(100vh-280px)]">
-            <CivicChat onCheckpointSelect={setActiveStep} />
-          </div>
-
-        </div>
+        <AnimatePresence mode="wait">
+          {activeTab === 'journey' ? (
+            <motion.div 
+              key="journey"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 flex-1 h-full min-h-0"
+            >
+              <div className="lg:col-span-4 h-full overflow-y-auto lg:border-r border-border transition-colors duration-200 pb-8 lg:pb-0 scrollbar-hide">
+                <VotingJourney activeStep={activeStep} setActiveStep={setActiveStep} />
+              </div>
+              <div className="lg:col-span-8 flex flex-col min-h-[500px] h-full lg:h-[calc(100vh-340px)]">
+                <CivicChat onCheckpointSelect={setActiveStep} />
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="news"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 flex-1 h-full min-h-0"
+            >
+              <div className="lg:col-span-4 h-full overflow-y-auto lg:border-r border-border transition-colors duration-200 pb-8 lg:pb-0 scrollbar-hide">
+                <ElectionNews />
+              </div>
+              <div className="lg:col-span-8 flex flex-col min-h-[500px] h-full lg:h-[calc(100vh-340px)]">
+                <CivicChat onCheckpointSelect={(step) => {
+                  setActiveTab('journey');
+                  setActiveStep(step);
+                }} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </main>
       
       {/* Footer */}
